@@ -1,0 +1,9 @@
+node_modules/
+.pnpm/
+dist/
+build/
+__pycache__/
+*.pyc
+.DS_Store
+
+outputs/experiment_data_work/node_modules/
