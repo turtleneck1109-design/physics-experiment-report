@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>拉伸法测金属丝杨氏模量数据处理</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Young's Modulus Lab</p>
+      <h1>拉伸法测金属丝杨氏模量数据处理</h1>
+      <p class="subtitle">先填写实验数据，再生成平均值、最小二乘拟合、杨氏模量和不确定度传递结果。</p>
+    </div>
+    <div class="header-actions">
+      <button id="loadSampleBtn" type="button">载入示例数据</button>
+      <button id="clearBtn" type="button" class="secondary">清空</button>
+      <button id="printBtn" type="button" class="primary">打印 / 导出 PDF</button>
+    </div>
+  </header>
+
+  <nav class="view-tabs" aria-label="页面切换">
+    <button id="inputTab" type="button" class="tab-button active" data-view-target="inputPage">数据填入</button>
+    <button id="resultTab" type="button" class="tab-button" data-view-target="resultPage">数据生成</button>
+  </nav>
+
+  <main class="app-shell">
+    <section id="inputPage" class="panel inputs-panel view-page active" aria-labelledby="inputTitle">
+      <div class="section-head">
+        <h2 id="inputTitle">实验数据输入</h2>
+        <button id="calculateBtn" type="button" class="primary">生成结果</button>
+      </div>
+
+      <div class="settings-grid">
+        <label>
+          重力加速度 g / (m·s⁻²)
+          <input id="gravityInput" type="number" step="0.0001" value="9.8">
+        </label>
+        <label>
+          米尺 B 类不确定度 / m
+          <input id="rulerUInput" type="number" step="0.0001" value="0.0005">
+        </label>
+        <label>
+          螺旋测微器 B 类不确定度 / mm
+          <input id="micrometerUInput" type="number" step="0.001" value="0.005">
+        </label>
+      </div>
+
+      <div class="subsection-head">
+        <h3>直接测量量</h3>
+        <div class="mini-actions">
+          <button id="addDirectColumnBtn" type="button" class="secondary">添加一列</button>
+          <button id="removeDirectColumnBtn" type="button" class="secondary">删除末列</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="input-table" id="directTable">
+          <thead>
+            <tr>
+              <th>量</th>
+              <th>单位</th>
+              <th>1</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
+              <th>5</th>
+              <th>6</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-key="L">
+              <th>钢丝长度 L</th>
+              <td>m</td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+            </tr>
+            <tr data-key="littleL">
+              <th>平面镜到钢丝距离 l</th>
+              <td>m</td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+            </tr>
+            <tr data-key="D">
+              <th>平面镜到望远镜直尺距离 D</th>
+              <td>m</td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+              <td><input type="number" step="0.0001"></td>
+            </tr>
+            <tr data-key="d">
+              <th>钢丝直径 d</th>
+              <td>mm</td>
+              <td><input type="number" step="0.001"></td>
+              <td><input type="number" step="0.001"></td>
+              <td><input type="number" step="0.001"></td>
+              <td><input type="number" step="0.001"></td>
+              <td><input type="number" step="0.001"></td>
+              <td><input type="number" step="0.001"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subsection-head">
+        <h3>砝码质量与标尺读数</h3>
+        <div class="mini-actions">
+          <button id="addLoadRowBtn" type="button" class="secondary">添加一行</button>
+          <button id="removeLoadRowBtn" type="button" class="secondary">删除末行</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="input-table" id="loadTable">
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>砝码质量 m/kg</th>
+              <th>加砝码读数/cm</th>
+              <th>减砝码读数/cm</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="form-footer">
+        <button id="calculateBottomBtn" type="button" class="primary large-action">生成结果</button>
+      </div>
+    </section>
+
+    <section id="resultPage" class="panel result-panel view-page" aria-labelledby="resultTitle" hidden>
+      <div class="section-head">
+        <h2 id="resultTitle">处理结果</h2>
+        <div class="result-actions">
+          <span id="statusText" class="status">等待计算</span>
+          <button id="backToInputBtn" type="button" class="secondary">返回修改数据</button>
+        </div>
+      </div>
+
+      <div class="cards">
+        <article class="result-card">
+          <span>杨氏模量 E</span>
+          <strong id="eValue">--</strong>
+        </article>
+        <article class="result-card">
+          <span>绝对不确定度 uE</span>
+          <strong id="uEValue">--</strong>
+        </article>
+        <article class="result-card">
+          <span>相对不确定度</span>
+          <strong id="relativeValue">--</strong>
+        </article>
+        <article class="result-card accent">
+          <span>最终结果</span>
+          <strong id="finalValue">--</strong>
+        </article>
+      </div>
+
+      <div class="chart-frame">
+        <canvas id="fitCanvas" width="1200" height="780" aria-label="砝码质量-标尺读数拟合图"></canvas>
+      </div>
+
+      <div class="output-grid">
+        <section>
+          <h3>标尺读数平均值</h3>
+          <div class="table-wrap">
+            <table class="output-table" id="averageTable"></table>
+          </div>
+        </section>
+        <section>
+          <h3>最小二乘拟合</h3>
+          <div class="table-wrap">
+            <table class="output-table" id="fitTable"></table>
+          </div>
+        </section>
+        <section>
+          <h3>直接测量不确定度</h3>
+          <div class="table-wrap">
+            <table class="output-table" id="uncertaintyTable"></table>
+          </div>
+        </section>
+        <section>
+          <h3>不确定度传递</h3>
+          <div class="table-wrap">
+            <table class="output-table" id="propagationTable"></table>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
